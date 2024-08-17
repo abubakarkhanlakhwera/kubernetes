@@ -1,5 +1,7 @@
 #!/bin/bash
 
+apt update 
+
 # Load necessary kernel modules for containerd
 echo "overlay" >> /etc/modules-load.d/containerd.conf
 echo "br_netfilter" >> /etc/modules-load.d/containerd.conf
