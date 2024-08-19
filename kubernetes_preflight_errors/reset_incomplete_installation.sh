@@ -64,6 +64,6 @@ sudo rm -rf /var/lib/etcd/
 
 # Initialize the Kubernetes cluster
 echo "Initializing the Kubernetes cluster..."
-sudo kubeadm init
+sudo kubeadm init --control-plane-endpoint=""
 
-echo "Script execution completed."
+echo "Script execution completed."ip-172-31-35-251"
