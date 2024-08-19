@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod2
+  labels:
+    label1: aws
+    label2: docker
+    label3: linux
+spec:
+  containers:
+  - name: Secondcontainer
+    image: nginx:1.23
+    env:
+    - name: myname
+      value: New_pod
+    - name: city
+      value: Delhi 
