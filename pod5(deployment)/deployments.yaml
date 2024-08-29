@@ -17,3 +17,16 @@ spec:
         image: nginx
         ports:
         - containerPort: 80
+
+---
+apiVersion: v1
+kind: service
+metadata:
+  name: deployment-service
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+  selector:
+    app: nginx
+  type: NodePort
