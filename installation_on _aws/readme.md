@@ -52,6 +52,22 @@ If you encounter issues, consider the following:
     sudo systemctl status containerd
     sudo systemctl status kubelet
     ```
+    # Calico Network Plugin Setup for Kubernetes
+
+This guide explains how to install the Calico network plugin in your Kubernetes cluster using `kubectl`.
+
+## Prerequisites
+
+- A running Kubernetes cluster
+- `kubectl` command-line tool installed and configured to interact with your Kubernetes cluster
+
+## Step 1: Install Calico Network Plugin
+
+To install Calico as the network plugin for your Kubernetes cluster, run the following command:
+
+```bash
+kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.26.0/manifests/calico.yaml
+
 
 ## License
 
