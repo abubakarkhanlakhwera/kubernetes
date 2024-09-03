@@ -1,9 +1,12 @@
 apiVersion: apps/v1
-kind: Deployment
-metadata: 
-  name: deployment
+kind: StatefulSet
+metadata:
+  name: web
+  labels:
+    app1: app1
 spec:
-  replicas: 2
+  serviceName: "nginx"
+  replicas: 4
   selector:
     matchLabels:
       app: nginx
@@ -13,20 +16,24 @@ spec:
         app: nginx
     spec:
       containers:
-      - name: nginx
+      - name: container
         image: nginx
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 80
-
+          name: web
 ---
+
 apiVersion: v1
-kind: service
+kind: Service
 metadata:
-  name: deployment-service
+  name: web-service
+  labels:
+    app: nginx
 spec:
   ports:
   - port: 80
-    protocol: TCP
+    name: web
+  clusterIP: None
   selector:
     app: nginx
-  type: NodePort

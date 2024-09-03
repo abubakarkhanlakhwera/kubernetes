@@ -1,0 +1,19 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: cronjob-pod
+spec:
+  schedule: "* * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: cronjob
+            image: busybox
+            imagePullPolicy: IfNotPresent
+            command:
+            - sh
+            - -c
+            - dare; echo this is cronJob pod
+          restartPolicy: OnFailure
