@@ -7,6 +7,6 @@ spec:
     - ReadWriteMany
   resources:
     requests:
-      storage: 1Gi
+      storage: 500Mi
   volumeName: my-pv-hostpath   
   

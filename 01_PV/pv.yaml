@@ -8,7 +8,7 @@ spec:
   accessModes: 
   - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
-  hostpath: 
+  hostPath: 
     path: /data/my-pv-hostpath
    
   
