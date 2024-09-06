@@ -64,7 +64,7 @@ sudo rm -rf /var/lib/etcd/
 
 # Initialize the Kubernetes cluster
 echo "Initializing the Kubernetes cluster..."
-sudo kubeadm init --control-plane-endpoint="ip-172-31-35-251"
+sudo kubeadm init --control-plane-endpoint=""
 
 # Configure kubectl for the non-root user
 echo "Setting up kubeconfig for the user..."
