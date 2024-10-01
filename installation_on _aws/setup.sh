@@ -44,4 +44,7 @@ apt install -y kubelet kubeadm kubectl
 apt-mark hold kubelet kubeadm kubectl
 #calico networking
 #kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.26.0/manifests/calico.yaml
-kubeadm init --control-plane-endpoint='' --ignore-preflight-errors=Mem
+echo "Initializing the Kubernetes cluster..."
+sudo kubeadm init --control-plane-endpoint=""
+
+echo "Script execution completed.
