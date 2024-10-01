@@ -1,55 +1,78 @@
 #!/bin/bash
 
-apt update 
+set -e  # Exit immediately if a command exits with a non-zero status
+set -o pipefail  # Return the exit status of the last command in the pipe that failed
+
+# Update the system
+echo "Updating package lists..."
+apt update -y
 
 # Load necessary kernel modules for containerd
-echo "overlay" >> /etc/modules-load.d/containerd.conf
-echo "br_netfilter" >> /etc/modules-load.d/containerd.conf
+echo "Loading necessary kernel modules..."
+cat <<EOF | sudo tee /etc/modules-load.d/containerd.conf
+overlay
+br_netfilter
+EOF
+
 modprobe overlay
 modprobe br_netfilter
 
 # Set up required sysctl parameters for Kubernetes networking
-echo "net.bridge.bridge-nf-call-ip6tables = 1" >> /etc/sysctl.d/kubernetes.conf
-echo "net.bridge.bridge-nf-call-iptables = 1" >> /etc/sysctl.d/kubernetes.conf
-echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.d/kubernetes.conf
+echo "Configuring sysctl parameters for Kubernetes networking..."
+cat <<EOF | sudo tee /etc/sysctl.d/kubernetes.conf
+net.bridge.bridge-nf-call-ip6tables = 1
+net.bridge.bridge-nf-call-iptables = 1
+net.ipv4.ip_forward = 1
+EOF
 sysctl --system
 
-# Update package lists and install required dependencies
-apt-get update
-apt install -y curl gnupg2 software-properties-common apt-transport-https ca-certificates
+# Install required dependencies
+echo "Installing required dependencies..."
+apt-get update -y
+apt-get install -y curl gnupg2 software-properties-common apt-transport-https ca-certificates
 
-# Add Docker's official GPG key and set up the stable repository
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmour -o /etc/apt/trusted.gpg.d/docker.gpg
+# Add Docker's official GPG key and set up the Docker repository
+echo "Setting up Docker repository..."
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/trusted.gpg.d/docker.gpg
 add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
 
 # Install containerd and configure it to use systemd as the cgroup driver
-apt update
-apt install -y containerd.io
+echo "Installing and configuring containerd..."
+apt-get update -y
+apt-get install -y containerd.io
 containerd config default | sudo tee /etc/containerd/config.toml >/dev/null 2>&1
-sed -i 's/SystemdCgroup \= false/SystemdCgroup \= true/g' /etc/containerd/config.toml
+sed -i 's/SystemdCgroup = false/SystemdCgroup = true/g' /etc/containerd/config.toml
 
 # Restart and enable containerd to apply the new configuration
+echo "Restarting containerd service..."
 systemctl restart containerd
 systemctl enable containerd
 
-# Add Kubernetes apt repository and install kubelet, kubeadm, and kubectl
+# Add Kubernetes apt repository
+echo "Setting up Kubernetes repository..."
 curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
 echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.28/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
 
-# Update package lists and install Kubernetes components
-apt update
-apt install -y kubelet kubeadm kubectl
+# Install Kubernetes components
+echo "Installing Kubernetes components..."
+apt-get update -y
+apt-get install -y kubelet kubeadm kubectl
 
 # Prevent Kubernetes components from being automatically updated
 apt-mark hold kubelet kubeadm kubectl
 
-
+# Initialize Kubernetes cluster
 echo "Initializing the Kubernetes cluster..."
-sudo kubeadm init --control-plane-endpoint=""
-mkdir -p $HOME/.kube
-sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
-sudo chown $(id -u):$(id -g) $HOME/.kube/config
-#calico networking
-#kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.26.0/manifests/calico.yaml
+kubeadm init --control-plane-endpoint="" | tee /root/kubeadm-init.log
 
-echo "Script execution completed.
+# Set up kubectl for the root user
+echo "Configuring kubectl for the root user..."
+mkdir -p $HOME/.kube
+cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+chown $(id -u):$(id -g) $HOME/.kube/config
+
+# Optionally deploy Calico networking (uncomment to apply)
+# echo "Deploying Calico networking..."
+# kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.26.0/manifests/calico.yaml
+
+echo "Kubernetes setup complete."
