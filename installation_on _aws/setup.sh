@@ -73,5 +73,9 @@ chown $(id -u):$(id -g) $HOME/.kube/config
 # Optionally deploy Calico networking (uncomment to apply)
 # echo "Deploying Calico networking..."
 # kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.26.0/manifests/calico.yaml
+# Display networking setup message
+echo "To setup networking, run the following command:"
+echo "kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.26.0/manifests/calico.yaml"
 
+echo "Script execution completed."
 echo "Kubernetes setup complete."
