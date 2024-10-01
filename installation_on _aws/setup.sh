@@ -42,9 +42,14 @@ apt install -y kubelet kubeadm kubectl
 
 # Prevent Kubernetes components from being automatically updated
 apt-mark hold kubelet kubeadm kubectl
-#calico networking
-#kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.26.0/manifests/calico.yaml
+
+
 echo "Initializing the Kubernetes cluster..."
 sudo kubeadm init --control-plane-endpoint=""
+mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+#calico networking
+#kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.26.0/manifests/calico.yaml
 
 echo "Script execution completed.
